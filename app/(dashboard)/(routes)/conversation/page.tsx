@@ -1,9 +1,13 @@
 "use client"
 
+import { useState } from "react"
 import { MessageSquare } from "lucide-react"
 import * as z from "zod"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
+import axios from 'axios'
+import { useRouter } from "next/navigation"
+import { ChatCompletionRequestMessage } from "openai";
 
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form"
 
@@ -13,6 +17,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
 const ConversationPage = () => {
+    const router = useRouter()
+    const [messages, setMessages] = useState<ChatCompletionRequestMessage[]>([])
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -23,7 +29,26 @@ const ConversationPage = () => {
     const isLoading = form.formState.isSubmitting
 
     const submitHandler = async (values: z.infer<typeof formSchema>) => {
-        console.log(values)
+        try {
+            const userMessage: ChatCompletionRequestMessage = {
+                role: "user",
+                content: values.prompt,
+            }
+
+            const newMessage = [...messages, userMessage]
+
+            const res = await axios.post("/api/conversation", {
+                messages: newMessage
+            })
+
+            setMessages((current) => [...current, userMessage, res.data])
+
+            form.reset()
+        } catch (err) {
+            console.log(err)
+        } finally {
+            router.refresh()
+        }   
     } 
 
   return (
@@ -63,12 +88,17 @@ const ConversationPage = () => {
                         <Button className="col-span-12 lg:col-span-2">
                             Generate
                         </Button>
-
                     </form>
                 </Form>
             </div>
             <div className="space-y-4 mt-4">
-                Message Content
+                <div className="flex flex-col-reverse gap-y-4">
+                    {messages.map((message) => (
+                        <div key={message.content}>
+                            {message.content}
+                        </div>
+                    ))}
+                </div>
             </div>
         </div>
     </div>
