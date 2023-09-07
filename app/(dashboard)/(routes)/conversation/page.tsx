@@ -12,9 +12,14 @@ import { ChatCompletionRequestMessage } from "openai";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form"
 
 import Heading from "@/components/heading"
+import { UserAvatar } from "@/components/user-avatar"
+import { BotAvatar } from "@/components/bot-avatar"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Empty } from "@/components/empty"
+import { Loader } from "@/components/loader";
+import { cn } from "@/lib/utils";
 import { formSchema } from "./constants"
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 
 const ConversationPage = () => {
     const router = useRouter()
@@ -92,10 +97,29 @@ const ConversationPage = () => {
                 </Form>
             </div>
             <div className="space-y-4 mt-4">
+                { isLoading && (
+                    <div className="p-8 rounded-lg w-dull flex items-center justify-center bg-muted">
+                        <Loader />
+                    </div>
+                )}
+                {messages.length === 0 && !isLoading && (
+                    <Empty label="No Conversation started." />
+                )}
                 <div className="flex flex-col-reverse gap-y-4">
                     {messages.map((message) => (
-                        <div key={message.content}>
-                            {message.content}
+                        <div 
+                            key={message.content}
+                            className={cn(
+                                "p-8 w-full flex items-start gap-x-8 rounded-lg",
+                                message.role === "user" 
+                                  ? "bg-white border border-black/10"
+                                  : "bg-muted"
+                            )}
+                        >
+                            {message.role === "user" ? <UserAvatar /> : <BotAvatar /> }
+                            <p className="text-sm">
+                                {message.content}
+                            </p>
                         </div>
                     ))}
                 </div>
