@@ -91,7 +91,7 @@ const CodePage  = () => {
                                 </FormItem>
                             )}
                         />
-                        <Button className="col-span-12 lg:col-span-2">
+                        <Button className="col-span-12 lg:col-span-2" disabled={isLoading}>
                             Generate
                         </Button>
                     </form>
@@ -123,7 +123,7 @@ const CodePage  = () => {
                                 components={{
                                     pre: ({ node, ...props }) => (
                                         <div 
-                                            className="overflow-auto w-full my-2 bg-black/10 p-2 rounded-lg"
+                                            className="overflow-auto w-full my-3 bg-black/90 text-white p-3 rounded-lg"
                                         >
                                             <pre {...props} />
                                         </div>
